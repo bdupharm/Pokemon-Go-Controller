@@ -1,16 +1,18 @@
 import xml.etree.cElementTree as ET
 import urllib2
 import json
+import socket
 
 lastLat = ""
 lastLng = ""
 
 def getPokemonLocation():
 	try:
-		response = urllib2.urlopen("http://172.16.255.195/", timeout = 1)
+                response = urllib2.urlopen("http://10.11.12.233:8080/", timeout = 1)
 		return json.load(response)
-	except urllib2.URLError as e:
-		print e.reason
+	except (urllib2.URLError, socket.timeout) as e:
+                print "Connecting Again"
+                getPokemonLocation()
 
 def generateXML():
 	global lastLat, lastLng
