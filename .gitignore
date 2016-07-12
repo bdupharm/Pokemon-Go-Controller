@@ -1,2 +1,5 @@
 autoClicker
 pokemonLocation.gpx
+*.swo
+*.swp
+.DS_Store

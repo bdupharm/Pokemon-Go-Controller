@@ -3,9 +3,13 @@ import urllib2
 import json
 import time
 import socket
+import signal
+import sys
 
 lastLat = ""
 lastLng = ""
+path = open("path.csv", "wb")
+
 
 def getPokemonLocation():
 	try:
@@ -15,21 +19,29 @@ def getPokemonLocation():
                 print "Likely, timout. Connecting Again"
                 getPokemonLocation()
 
+
 def generateXML():
-	global lastLat, lastLng
+        global lastLat, lastLng, path
+
 	geo = getPokemonLocation()
 	if geo != None:
 		if geo["lat"] != lastLat or geo["lng"] != lastLng:
-			lastLat = geo["lat"]
-			lastLng = geo["lng"]
-			gpx = ET.Element("gpx", version="1.1", creator="Xcode")
-			wpt = ET.SubElement(gpx, "wpt", lat=geo["lat"], lon=geo["lng"])
-			ET.SubElement(wpt, "name").text = "PokemonLocation"
-			ET.ElementTree(gpx).write("pokemonLocation.gpx")
+                        lastLat = geo["lat"]
+                        lastLng = geo["lng"]
+                        path.write("{},{}\n".format(geo["lat"], geo["lng"]))
 			print "Location Updated!", "latitude:", geo["lat"], "longitude:" ,geo["lng"]
 
+
+def signal_handler(sig, frame):
+    print "Closing app"
+    path.close()
+    sys.exit()
+
+
 def start():
-	while True:
-		generateXML()
+    signal.signal(signal.SIGINT, signal_handler)
+    while True:
+        generateXML()
+
 
 start()
